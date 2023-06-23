@@ -19,6 +19,7 @@ class CustomUserManager(BaseUserManager):
 
 class User(AbstractBaseUser):
     email = models.EmailField(unique=True)
+    username = models.CharField(max_length=244)
     location = models.CharField(max_length=255)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
@@ -31,12 +32,10 @@ class User(AbstractBaseUser):
     def __str__(self):
         return self.email
 
-
 class Post(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
-    likes = models.ManyToManyField(User, related_name='liked_posts')
-
+    likes = models.ManyToManyField(User, related_name='liked_posts', blank=True)
     def __str__(self):
         return self.content[:50]  # Return the first 50 characters of the content
