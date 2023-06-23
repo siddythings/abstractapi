@@ -10,15 +10,50 @@ from rest_framework.permissions import AllowAny
 from rest_framework_simplejwt.views import TokenObtainPairView
 from .models import Post
 from .serializers import PostSerializer
-
+from api.utils import *
+import datetime
 class LoginAPIView(TokenObtainPairView):
     permission_classes = (AllowAny,)
     serializer_class = LoginTokenSerializer
 
-class RegisterView(generics.CreateAPIView):
-    queryset = User.objects.all()
-    permission_classes = (AllowAny,)
-    serializer_class = RegisterSerializer
+class RegisterView(APIView):
+    permission_classes = [AllowAny]
+
+    def get_client_ip(self, request):
+        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+        if x_forwarded_for:
+            ip = x_forwarded_for.split(',')[0]
+        else:
+            ip = request.META.get('REMOTE_ADDR')
+        return ip
+
+    def post(self, request):
+        requested_data = request.data
+        ip = self.get_client_ip(self.request)
+        geolocation_data = get_geolocation_data("203.122.40.242")
+        
+        if not geolocation_data:
+            return Response(data={"status":"Invalid IP Address"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        country_code = geolocation_data.get("country_code")
+        day = datetime.datetime.now().date().day
+        month = datetime.datetime.now().date().month
+        year = datetime.datetime.now().date().year
+
+        holidays = check_holiday(country_code, day, month, year)
+
+        requested_data.update({
+            "gio_location": geolocation_data,
+            "has_holiday": holidays
+        })
+        print(requested_data)
+        serializer = RegisterSerializer(data=requested_data)
+        if serializer.is_valid():
+            user = serializer.save()
+            # Additional logic for enriching user data and checking holidays can be added here
+            return Response(serializer.data, status=201)
+        return Response(serializer.errors, status=400)
+
 
 class UserDetails(APIView):
     permission_classes = [IsAuthenticated]

@@ -4,7 +4,7 @@ from rest_framework.validators import UniqueValidator
 from django.contrib.auth.password_validation import validate_password
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from api.models import *
-
+from api.utils import *
 class LoginTokenSerializer(TokenObtainPairSerializer):
 
     @classmethod
@@ -27,21 +27,22 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('username', 'password', 'password2', 'email')
+        fields = ('username', 'password', 'password2', 'email', 'gio_location', 'has_holiday')
 
     def validate(self, attrs):
         if attrs['password'] != attrs['password2']:
             raise serializers.ValidationError({"password": "Password fields didn't match."})
 
         return attrs
-
+    
     def create(self, validated_data):
         user = User.objects.create(
             username=validated_data['username'],
-            email=validated_data['email']
+            email=validated_data['email'],
+            gio_location=validated_data['gio_location'],
+            has_holiday=validated_data['has_holiday']
         )
 
-        
         user.set_password(validated_data['password'])
         user.save()
 

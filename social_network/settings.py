@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
 from pathlib import Path
-
+import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -26,6 +26,9 @@ SECRET_KEY = 'django-insecure-#9f_-9ah&fwvqoyg-73e_7b9mcl)69wj#0el0*vbxhg^l4(4kl
 DEBUG = True
 
 ALLOWED_HOSTS = []
+
+GEOLOCATION_ABSTRACT_API_KEY = os.environ.get("GEOLOCATION_ABSTRACT_API_KEY")
+HOLIDAY_ABSTRACT_API_KEY = os.environ.get("HOLIDAY_ABSTRACT_API_KEY")
 
 AUTH_USER_MODEL = "api.User"
 # Application definition
