@@ -108,3 +108,10 @@ python manage.py runserver
   - Route: POST `/api/posts/{post_id}/unlike/`
   - Authorization header: Bearer {JWT-token}
 ```
+
+
+** API Test
+
+```
+python manage.py test
+```
